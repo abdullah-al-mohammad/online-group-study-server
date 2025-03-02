@@ -1,7 +1,8 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { default: Swal } = require('sweetalert2');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -28,16 +29,23 @@ async function run() {
     const assignmentCollection = client
       .db('assignmentDb')
       .collection('assignment');
+    const userCollection = client.db('assignmentDb').collection('users');
 
     app.get('/assignment', async (req, res) => {
       const result = await assignmentCollection.find().toArray();
       res.send(result);
     });
-
     app.post('/assignment', async (req, res) => {
       const assignmentData = req.body;
       console.log(assignmentData);
       const result = await assignmentCollection.insertOne(assignmentData);
+      res.send(result);
+    });
+
+    // user collection
+    app.post('/users', async (req, res) => {
+      const userData = req.body;
+      const result = await userCollection.insertOne(userData);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
