@@ -25,19 +25,21 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const assignmentCollection = client.db('assignmentDb').collection('assignment');
+    const assignmentCollection = client
+      .db('assignmentDb')
+      .collection('assignment');
     const userCollection = client.db('assignmentDb').collection('users');
 
     app.get('/assignment', async (req, res) => {
       const result = await assignmentCollection.find().toArray();
       res.send(result);
     });
-    app.delete('/assignment/:id', ()=>{
-      const id = req.paramas.id
-      const query = {_id: new ObjectId(id)}
-      const result = assignmentCollection.deleteOne(query)
-      res.send(result)
-    })
+    app.delete('/assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await assignmentCollection.deleteOne(query);
+      res.send(result);
+    });
     app.post('/assignment', async (req, res) => {
       const assignmentData = req.body;
       // console.log(assignmentData);
@@ -46,11 +48,11 @@ async function run() {
     });
 
     // user collection
-    app.get('/users', async(req, res) => {
+    app.get('/users', async (req, res) => {
       const user = req.body;
-      const result = await userCollection.find(user).toArray()
-      res.send(result)
-    })
+      const result = await userCollection.find(user).toArray();
+      res.send(result);
+    });
     app.post('/users', async (req, res) => {
       const userData = req.body;
       const result = await userCollection.insertOne(userData);
