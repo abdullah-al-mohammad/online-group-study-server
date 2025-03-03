@@ -24,14 +24,36 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-
+    // assignment collection
     const assignmentCollection = client
       .db('assignmentDb')
       .collection('assignment');
+    // user collection
     const userCollection = client.db('assignmentDb').collection('users');
 
     app.get('/assignment', async (req, res) => {
       const result = await assignmentCollection.find().toArray();
+      res.send(result);
+    });
+    app.patch('/assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      const assignmentData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      console.log(filter);
+
+      const updateDoc = {
+        $set: {
+          title: assignmentData.title,
+          date: assignmentData.date,
+          difficulty: assignmentData.difficulty,
+          description: assignmentData.description,
+          marks: assignmentData.marks,
+          image: assignmentData.image,
+        },
+      };
+      console.log(updateDoc);
+
+      const result = await assignmentCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
     app.delete('/assignment/:id', async (req, res) => {
