@@ -30,23 +30,26 @@ async function run() {
       .collection('assignment');
     // user collection
     const userCollection = client.db('assignmentDb').collection('users');
-// all data load
+    // pending assignmetn
+    const assignmentSubmitCollection = client.db('assignmentDb').collection('submit');
+
+    // all data load
     app.get('/assignment', async (req, res) => {
       const result = await assignmentCollection.find().toArray();
       res.send(result);
     });
     // for specific data load
-    app.get('/assignment/:id', async(req, res) =>{
+    app.get('/assignment/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
-      const result = await assignmentCollection.findOne(query)
-      res.send(result)
-    })
+      const query = { _id: new ObjectId(id) };
+      const result = await assignmentCollection.findOne(query);
+      res.send(result);
+    });
     // for update data
     app.patch('/assignment/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
-      
+
       const assignmentData = req.body;
       const filter = { _id: new ObjectId(id) };
       console.log(filter);
@@ -79,6 +82,18 @@ async function run() {
       // console.log(assignmentData);
       const result = await assignmentCollection.insertOne(assignmentData);
       res.send(result);
+    });
+    // assignment submit
+    app.post('/submit', async (req, res) => {
+      const newAssignment = req.body;
+      const newSubmit = {
+        ...newAssignment,
+        status: 'pending'
+      }
+      console.log(newSubmit);
+      
+      const result =await assignmentSubmitCollection.insertOne(newSubmit)
+      res.send(result)
     });
 
     // user collection
