@@ -37,7 +37,12 @@ async function run() {
 
     // all data load
     app.get('/assignment', async (req, res) => {
-      const result = await assignmentCollection.find().toArray();
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query?.email };
+      }
+
+      const result = await assignmentCollection.find(query).toArray();
       res.send(result);
     });
     // for specific data load
@@ -50,11 +55,9 @@ async function run() {
     // for update data
     app.patch('/assignment/:id', async (req, res) => {
       const id = req.params.id;
-      console.log(id);
 
       const assignmentData = req.body;
       const filter = { _id: new ObjectId(id) };
-      console.log(filter);
 
       const updateDoc = {
         $set: {
@@ -66,7 +69,6 @@ async function run() {
           image: assignmentData.image,
         },
       };
-      console.log(updateDoc);
 
       const result = await assignmentCollection.updateOne(filter, updateDoc);
       res.send(result);
@@ -80,33 +82,23 @@ async function run() {
     });
     // post data to ui
     app.post('/assignment', async (req, res) => {
-      const assignmentData = req.body;
-      // console.log(assignmentData);
-      const result = await assignmentCollection.insertOne(assignmentData);
-      res.send(result);
-    });
-    // my assignment load
-    app.get('/assignment/my', async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      console.log(query);
+      const type = req.query.type;
+      console.log(type);
+      if (type === 'create') {
+        const assignmentData = req.body;
+        const result = await assignmentCollection.insertOne(assignmentData);
+        res.send(result);
+      } else if (type === 'submit') {
+        const submitData = req.body;
+        const newSubmit = {
+          ...submitData,
+          status: 'pending',
+        };
+        const result = await assignmentCollection.insertOne(newSubmit);
+        console.log(result);
 
-      const result = await assignmentCollection.find(query).toArray();
-      console.log(result);
-
-      res.send(result);
-    });
-    // assignment submit
-    app.post('/submit', async (req, res) => {
-      const newAssignment = req.body;
-      const newSubmit = {
-        ...newAssignment,
-        status: 'pending',
-      };
-      console.log(newSubmit);
-
-      const result = await assignmentSubmitCollection.insertOne(newSubmit);
-      res.send(result);
+        res.send(result);
+      }
     });
 
     // user collection
