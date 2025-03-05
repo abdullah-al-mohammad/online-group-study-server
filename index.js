@@ -30,8 +30,10 @@ async function run() {
       .collection('assignment');
     // user collection
     const userCollection = client.db('assignmentDb').collection('users');
-    // pending assignmetn
-    const assignmentSubmitCollection = client.db('assignmentDb').collection('submit');
+    // pending assignment
+    const assignmentSubmitCollection = client
+      .db('assignmentDb')
+      .collection('submit');
 
     // all data load
     app.get('/assignment', async (req, res) => {
@@ -83,17 +85,28 @@ async function run() {
       const result = await assignmentCollection.insertOne(assignmentData);
       res.send(result);
     });
+    // my assignment load
+    app.get('/assignment/my', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      console.log(query);
+
+      const result = await assignmentCollection.find(query).toArray();
+      console.log(result);
+
+      res.send(result);
+    });
     // assignment submit
     app.post('/submit', async (req, res) => {
       const newAssignment = req.body;
       const newSubmit = {
         ...newAssignment,
-        status: 'pending'
-      }
+        status: 'pending',
+      };
       console.log(newSubmit);
-      
-      const result =await assignmentSubmitCollection.insertOne(newSubmit)
-      res.send(result)
+
+      const result = await assignmentSubmitCollection.insertOne(newSubmit);
+      res.send(result);
     });
 
     // user collection
