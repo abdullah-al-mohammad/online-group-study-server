@@ -30,10 +30,6 @@ async function run() {
       .collection('assignment');
     // user collection
     const userCollection = client.db('assignmentDb').collection('users');
-    // pending assignment
-    const assignmentSubmitCollection = client
-      .db('assignmentDb')
-      .collection('submit');
 
     // all data load
     app.get('/assignment', async (req, res) => {
@@ -55,23 +51,41 @@ async function run() {
     // for update data
     app.patch('/assignment/:id', async (req, res) => {
       const id = req.params.id;
+      const type = req.query.type;
 
       const assignmentData = req.body;
+      console.log(assignmentData);
       const filter = { _id: new ObjectId(id) };
 
-      const updateDoc = {
-        $set: {
-          title: assignmentData.title,
-          date: assignmentData.date,
-          difficulty: assignmentData.difficulty,
-          description: assignmentData.description,
-          marks: assignmentData.marks,
-          image: assignmentData.image,
-        },
-      };
-
-      const result = await assignmentCollection.updateOne(filter, updateDoc);
-      res.send(result);
+      if (type === 'marking') {
+        const updateDoc = {
+          $set: {
+            marks: assignmentData.marks,
+            feedback: assignmentData.feedback,
+            status: 'marked',
+            title: assignmentData.title,
+            date: assignmentData.date,
+            difficulty: assignmentData.difficulty,
+            description: assignmentData.description,
+            image: assignmentData.image,
+          },
+        };
+        const result = await assignmentCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } else {
+        const updateDoc = {
+          $set: {
+            title: assignmentData.title,
+            date: assignmentData.date,
+            difficulty: assignmentData.difficulty,
+            description: assignmentData.description,
+            marks: assignmentData.marks,
+            image: assignmentData.image,
+          },
+        };
+        const result = await assignmentCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
     });
     // for delete data
     app.delete('/assignment/:id', async (req, res) => {
@@ -84,15 +98,25 @@ async function run() {
     app.post('/assignment', async (req, res) => {
       const type = req.query.type;
       console.log(type);
+      // if assignment create
       if (type === 'create') {
         const assignmentData = req.body;
         const result = await assignmentCollection.insertOne(assignmentData);
         res.send(result);
       } else if (type === 'submit') {
+        //if assignment submit
         const submitData = req.body;
         const newSubmit = {
           ...submitData,
           status: 'pending',
+          marks: assignmentData.marks,
+          feedback: assignmentData.feedback,
+          status: 'marked',
+          title: assignmentData.title,
+          date: assignmentData.date,
+          difficulty: assignmentData.difficulty,
+          description: assignmentData.description,
+          image: assignmentData.image,
         };
         const result = await assignmentCollection.insertOne(newSubmit);
         console.log(result);
