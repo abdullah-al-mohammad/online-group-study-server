@@ -54,7 +54,6 @@ async function run() {
       const type = req.query.type;
 
       const assignmentData = req.body;
-      console.log(assignmentData);
       const filter = { _id: new ObjectId(id) };
 
       if (type === 'marking') {
@@ -97,7 +96,6 @@ async function run() {
     // post data to ui
     app.post('/assignment', async (req, res) => {
       const type = req.query.type;
-      console.log(type);
       // if assignment create
       if (type === 'create') {
         const assignmentData = req.body;
@@ -119,7 +117,6 @@ async function run() {
           image: assignmentData.image,
         };
         const result = await assignmentCollection.insertOne(newSubmit);
-        console.log(result);
 
         res.send(result);
       }
@@ -137,10 +134,10 @@ async function run() {
       res.send(result);
     });
     // Send a ping to confirm a successful connection
-    await client.db('admin').command({ ping: 1 });
-    console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!'
-    );
+    // await client.db('admin').command({ ping: 1 });
+    // console.log(
+    //   'Pinged your deployment. You successfully connected to MongoDB!'
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
